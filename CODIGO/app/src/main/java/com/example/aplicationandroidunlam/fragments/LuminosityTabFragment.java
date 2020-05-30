@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,7 @@ public class LuminosityTabFragment extends Fragment {
     private Sensor lightSensor;
     private SensorEventListener lightEventListener;
     private float maxValue;
+    private int lastValueRead;
 
 
     public LuminosityTabFragment() {
@@ -112,15 +114,7 @@ public class LuminosityTabFragment extends Fragment {
                 @Override
                 public void onSensorChanged(SensorEvent sensorEvent) {
                     float value = sensorEvent.values[0];
-                    try{
-                        dataLuminosity = new ArrayList<JSONObject>();
-                        dataLuminosity.add(new JSONObject().put("value", value));
-                        LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
-                        luminosityRecycler.setAdapter(adapterLuminosity);
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
+                    lastValueRead = (int)value;
                 }
 
                 @Override
@@ -130,6 +124,28 @@ public class LuminosityTabFragment extends Fragment {
             };
 
             sensorManager.registerListener(lightEventListener, lightSensor,sensorManager.SENSOR_DELAY_FASTEST);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        if(dataLuminosity.size() != 0 && lastValueRead == Integer.parseInt(dataLuminosity.get(dataLuminosity.size() - 1).getString("value")))
+                            return;
+
+                        if(dataLuminosity.size() > 10){
+                            dataLuminosity = new ArrayList<JSONObject>();
+                        }
+
+                        dataLuminosity.add(new JSONObject().put("value", lastValueRead));
+                        LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
+                        luminosityRecycler.setAdapter(adapterLuminosity);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    new Handler().postDelayed(this, 3000);
+                }
+            }, 5000);
         }
         return root;
     }

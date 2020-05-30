@@ -57,12 +57,7 @@ public class LuminosityListAdapter extends RecyclerView.Adapter<LuminosityListAd
             try {
                 dataSensor = object.getString("value");
 
-                Calendar calendar = Calendar.getInstance();
-
-                int minutes = calendar.get(Calendar.MINUTE);
-                int hour = calendar.get(Calendar.HOUR);
-
-                dato.setText("Valor de luminosidad: " + dataSensor + "  ------------ " + hour + ":" + minutes);
+                dato.setText("Valor de luminosidad: " + dataSensor);
 
             } catch (JSONException e) {
                 e.printStackTrace();
