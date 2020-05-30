@@ -98,36 +98,39 @@ public class LuminosityTabFragment extends Fragment {
         sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 
-        if (lightSensor == null)
-          Toast.makeText(getContext(), "Este dispositivo no tiene sensor de luminosidad", Toast.LENGTH_SHORT).show();
+        if (lightSensor == null){
+            Toast.makeText(getContext(), "Este dispositivo no tiene sensor de luminosidad", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            luminosityRecycler = (RecyclerView) root.findViewById(R.id.recicler_luminosity);
+            luminosityRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        luminosityRecycler = (RecyclerView) root.findViewById(R.id.recicler_luminosity);
-        luminosityRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+            dataLuminosity = new ArrayList<JSONObject>();
+            maxValue = lightSensor.getMaximumRange();
 
-        dataLuminosity = new ArrayList<JSONObject>();
-        maxValue = lightSensor.getMaximumRange();
-
-        lightEventListener = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent sensorEvent) {
-                float value = sensorEvent.values[0];
-                try{
-                    dataLuminosity.add(new JSONObject().put("value", value));
-                    LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
-                    luminosityRecycler.setAdapter(adapterLuminosity);
+            lightEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent sensorEvent) {
+                    float value = sensorEvent.values[0];
+                    try{
+                        dataLuminosity = new ArrayList<JSONObject>();
+                        dataLuminosity.add(new JSONObject().put("value", value));
+                        LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
+                        luminosityRecycler.setAdapter(adapterLuminosity);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
-                catch (Exception e){
-                    e.printStackTrace();
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int i) {
+
                 }
-            }
+            };
 
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int i) {
-
-            }
-        };
-
-
+            sensorManager.registerListener(lightEventListener, lightSensor,sensorManager.SENSOR_DELAY_FASTEST);
+        }
         return root;
     }
 
