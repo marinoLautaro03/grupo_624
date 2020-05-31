@@ -1,16 +1,33 @@
 package com.example.aplicationandroidunlam.fragments;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.aplicationandroidunlam.R;
+import com.example.aplicationandroidunlam.listAdapters.GiroscopeListAdapter;
+import com.example.aplicationandroidunlam.listAdapters.LuminosityListAdapter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+import static android.content.Context.SENSOR_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +42,14 @@ public class GiroscopeTabFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    public ArrayList<JSONObject> dataGiroscope;
+    public RecyclerView giroscopeyRecycler;
+    public SensorManager sensorManager;
+    private Sensor giroscopeSensor;
+    private SensorEventListener giroscopeEventListener;
+    private float maxValue;
+    private JSONObject lastValueRead;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -66,8 +91,93 @@ public class GiroscopeTabFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_giroscope_tab, container, false);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_giroscope_tab, container, false);
+
+
+        sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);
+        giroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+        if (giroscopeSensor == null){
+            Toast.makeText(getContext(), "Este dispositivo no tiene giroscopio", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            giroscopeyRecycler = (RecyclerView) root.findViewById(R.id.recicler_Giroscope);
+            giroscopeyRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+
+            dataGiroscope = new ArrayList<JSONObject>();
+            maxValue = giroscopeSensor.getMaximumRange();
+
+            giroscopeEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent sensorEvent) {
+                    lastValueRead = new JSONObject();
+                    try {
+                        lastValueRead.put("x", sensorEvent.values[0]);
+                        lastValueRead.put("y", sensorEvent.values[1]);
+                        lastValueRead.put("z", sensorEvent.values[2]);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int i) {
+
+                }
+            };
+
+            sensorManager.registerListener(giroscopeEventListener, giroscopeSensor,sensorManager.SENSOR_DELAY_FASTEST);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    new Handler().postDelayed(this, 5000);
+                    try{
+                        if(dataGiroscope.size() != 0 && SameValueAsBefore())
+                            return;
+
+                        if(dataGiroscope.size() > 6)
+                            dataGiroscope = new ArrayList<JSONObject>();
+
+                        String newValue = "X: " + lastValueRead.getString("x") +
+                                " Y: " + lastValueRead.getString("y") +
+                                " Z: " + lastValueRead.getString("z");
+
+                        dataGiroscope.add(new JSONObject().put("value", newValue));
+                        GiroscopeListAdapter adapterGiroscope = new GiroscopeListAdapter(dataGiroscope);
+                        giroscopeyRecycler.setAdapter(adapterGiroscope);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                }
+            }, 5000);
+        }
+        return root;
+    }
+
+
+    public boolean SameValueAsBefore(){
+
+        try {
+
+            String newValue = "X: " + lastValueRead.getString("x") +
+                    " Y: " + lastValueRead.getString("y") +
+                    " Z: " + lastValueRead.getString("z");
+
+            String previousValue = dataGiroscope.get(dataGiroscope.size() - 1).getString("value");
+
+            if(newValue.equals(previousValue))
+                return true;
+
+            return false;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

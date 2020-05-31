@@ -7,14 +7,14 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="40dp"
+        android:layout_width="46dp"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_wb_sunny_black_24dp" />
+        app:srcCompat="@drawable/ic_3d_rotation_black_24dp" />
 
     <TextView
-        android:id="@+id/idDatoLuminosity"
-        android:layout_width="360dp"
-        android:layout_height="43dp"
+        android:id="@+id/idDatoGiroscope"
+        android:layout_width="363dp"
+        android:layout_height="36dp"
         android:text="mensaje" />
 
 </LinearLayout>
