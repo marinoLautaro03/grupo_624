@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.example.aplicationandroidunlam.R;
 import com.example.aplicationandroidunlam.listAdapters.GiroscopeListAdapter;
 import com.example.aplicationandroidunlam.listAdapters.LuminosityListAdapter;
+import com.example.aplicationandroidunlam.servicesHandlers.EventsHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -146,6 +147,9 @@ public class GiroscopeTabFragment extends Fragment {
                         dataGiroscope.add(new JSONObject().put("value", newValue));
                         GiroscopeListAdapter adapterGiroscope = new GiroscopeListAdapter(dataGiroscope);
                         giroscopeyRecycler.setAdapter(adapterGiroscope);
+
+                        EventsHandler eventsHandler = new EventsHandler(getContext());
+                        eventsHandler.RegisterEvent("Proceso background - Sensor", "Se acaba de detectar un cambio en el giroscopio del dispositivo");
                     }
                     catch (Exception e){
                         e.printStackTrace();

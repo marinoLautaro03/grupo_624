@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.aplicationandroidunlam.R;
 import com.example.aplicationandroidunlam.listAdapters.LuminosityListAdapter;
+import com.example.aplicationandroidunlam.servicesHandlers.EventsHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -140,6 +141,9 @@ public class LuminosityTabFragment extends Fragment {
                         dataLuminosity.add(new JSONObject().put("value", lastValueRead));
                         LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
                         luminosityRecycler.setAdapter(adapterLuminosity);
+
+                        EventsHandler eventsHandler = new EventsHandler(getContext());
+                        eventsHandler.RegisterEvent("Proceso background - Sensor", "Se acaba de detectar un cambio en el nivel de brillo del dispositivo");
                     }
                     catch (Exception e){
                         e.printStackTrace();

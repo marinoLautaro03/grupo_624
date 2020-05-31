@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.aplicationandroidunlam.servicesHandlers.EventsHandler;
 import com.example.aplicationandroidunlam.servicesHandlers.ServicesHttp_POST;
 import com.example.aplicationandroidunlam.ui.login.LoginActivity;
 
@@ -175,8 +176,6 @@ public class CreateUserActivity extends AppCompatActivity {
         if(!password.equals(confirmation))
             return "Las contraseñas ingresadas no coinciden.";
 
-
-
         return "";
     }
 
@@ -194,6 +193,8 @@ public class CreateUserActivity extends AppCompatActivity {
                     return;
                 }
                 else{
+                    EventsHandler eventsHandler = new EventsHandler(CreateUserActivity.this);
+                    eventsHandler.RegisterEvent("Creación de usuario", "El usuario se creo correctamente");
                     Toast.makeText(getApplicationContext(),"Se completo el registro con exito.", Toast.LENGTH_LONG).show();
                     Intent myIntent = new Intent(getBaseContext(), LoginActivity.class);
                     startActivity(myIntent);

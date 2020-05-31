@@ -69,6 +69,7 @@ public class ServicesHttp_POST extends IntentService {
         try{
             URL mUrl = new URL(uri);
             urlConnection = (HttpURLConnection) mUrl.openConnection();
+            urlConnection.setRequestProperty("token", "$2y$10$ogAnIXZxg4gn7Q3WPSr9ue9A8CrfqZU7h5t9.0qfpzFRtezwEGeSS");
             urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);

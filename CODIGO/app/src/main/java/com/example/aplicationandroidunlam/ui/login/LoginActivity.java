@@ -32,6 +32,7 @@ import android.widget.Toast;
 import com.example.aplicationandroidunlam.CreateUserActivity;
 import com.example.aplicationandroidunlam.R;
 import com.example.aplicationandroidunlam.SensorTabActivity;
+import com.example.aplicationandroidunlam.servicesHandlers.EventsHandler;
 import com.example.aplicationandroidunlam.servicesHandlers.ServicesHttp_POST;
 
 import org.json.JSONObject;
@@ -136,10 +137,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //loadingProgressBar.setVisibility(View.VISIBLE);
-                //loginViewModel.login(usernameEditText.getText().toString(), passwordEditText.getText().toString());
 
-                Log.i("Mensaje", "Llego al boton");
                 JSONObject obj = new JSONObject();
                 try{
                     obj.put("email", usernameEditText.getText());
@@ -234,6 +232,8 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
                 else{
+                    EventsHandler eventsHandler = new EventsHandler(LoginActivity.this);
+                    eventsHandler.RegisterEvent("Login", "El usuario se logueo correctamente");
                     Toast.makeText(getApplicationContext(),"Bienvenido", Toast.LENGTH_LONG).show();
                     Intent myIntent = new Intent(getBaseContext(), SensorTabActivity.class);
                     startActivity(myIntent);
