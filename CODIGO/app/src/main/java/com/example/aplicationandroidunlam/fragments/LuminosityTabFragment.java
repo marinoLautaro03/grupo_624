@@ -128,11 +128,12 @@ public class LuminosityTabFragment extends Fragment {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    new Handler().postDelayed(this, 5000);
                     try{
                         if(dataLuminosity.size() != 0 && lastValueRead == Integer.parseInt(dataLuminosity.get(dataLuminosity.size() - 1).getString("value")))
                             return;
 
-                        if(dataLuminosity.size() > 10){
+                        if(dataLuminosity.size() > 8){
                             dataLuminosity = new ArrayList<JSONObject>();
                         }
 
@@ -143,7 +144,7 @@ public class LuminosityTabFragment extends Fragment {
                     catch (Exception e){
                         e.printStackTrace();
                     }
-                    new Handler().postDelayed(this, 3000);
+
                 }
             }, 5000);
         }
