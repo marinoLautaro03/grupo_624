@@ -10,14 +10,14 @@
         android:id="@+id/textView"
         android:layout_width="369dp"
         android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="65dp"
-        android:text="El giroscópio comenzará a registrar valores a medida que se detecten variaciones"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:text="El sensor del giroscópio medirá cada 5 segundos si hay variaciones."
         android:textAlignment="center"
         android:textSize="17sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="El giroscópio comenzará a registrar valores a medida que se detecten variaciones" />
+        tools:text="El sensor del giroscópio medirá cada 5 segundos si hay variaciones." />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recicler_Giroscope"
@@ -25,6 +25,18 @@
         android:layout_height="494dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="172dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_giroscope_event"
+        android:layout_width="151dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="231dp"
+        android:layout_marginTop="90dp"
+        android:background="@color/colorPrimary"
+        android:text="Registrar evento"
+        android:textColor="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

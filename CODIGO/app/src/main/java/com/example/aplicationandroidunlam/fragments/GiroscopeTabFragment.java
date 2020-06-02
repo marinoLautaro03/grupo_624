@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.aplicationandroidunlam.R;
@@ -93,7 +94,25 @@ public class GiroscopeTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_giroscope_tab, container, false);
+        Button btnEvent = root.findViewById(R.id.btn_giroscope_event);
 
+        btnEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    String newValue = "X: " + lastValueRead.getString("x") +
+                            " Y: " + lastValueRead.getString("y") +
+                            " Z: " + lastValueRead.getString("z");
+
+                    EventsHandler eventsHandler = new EventsHandler(getContext());
+                    eventsHandler.RegisterEvent("Registro de sensor - Giroscopio", "El último valor obtenido fue: " + newValue);
+                    Toast.makeText(getContext(),"Evento registrado con exito", Toast.LENGTH_LONG).show();
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
 
         sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);
         giroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);

@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.aplicationandroidunlam.R;
@@ -96,6 +97,17 @@ public class LuminosityTabFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_luminosity_tab, container, false);
+        Button btnEvent = root.findViewById(R.id.btn_luminosity_event);
+
+        btnEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventsHandler eventsHandler = new EventsHandler(getContext());
+                eventsHandler.RegisterEvent("Registro de sensor - Luminosidad", "El último valor obtenido fue: " + lastValueRead);
+                Toast.makeText(getContext(),"Evento registrado con exito", Toast.LENGTH_LONG).show();
+            }
+        });
+
 
 
         sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);

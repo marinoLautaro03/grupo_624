@@ -12,15 +12,13 @@
         android:id="@+id/txt_luminosity_explanation"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Se mostrarán los valores recibidos por el sensor de luminosidad. Se hará una medición cada 5 segundos."
+        android:layout_marginTop="85px"
+        android:text="El sensor de luminosidad detectará si hubo cambios cada 5 segundos."
         android:textAlignment="center"
         android:textSize="17sp"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp"
-        tools:text="Se mostrarán los valores recibidos por el sensor de luminosidad. Se hará una medición cada 5 segundos."
-        android:layout_marginTop="85px"
-        android:layout_marginLeft="15px"
-        android:layout_marginRight="15px"/>
+        tools:text="El sensor de luminosidad detectará si hubo cambios cada 5 segundos." />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recicler_luminosity"
@@ -28,6 +26,18 @@
         android:layout_height="355dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="139dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_luminosity_event"
+        android:layout_width="150dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="240dp"
+        android:layout_marginTop="81dp"
+        android:background="@color/colorPrimary"
+        android:text="Registrar evento"
+        android:textColor="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
