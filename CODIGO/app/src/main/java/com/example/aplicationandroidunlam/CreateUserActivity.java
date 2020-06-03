@@ -42,10 +42,14 @@ public class CreateUserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_user);
+        try{
+            setContentView(R.layout.activity_create_user);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         notConnectedMessage = findViewById(R.id.text_no_internet);
-        notConnectedMessage.setVisibility(View.INVISIBLE);
+
         final Button cancelButton = findViewById(R.id.btn_cancel);
         final Button acceptButton = findViewById(R.id.btn_accept);
         fields = new HashMap<String, EditText>();
@@ -131,10 +135,15 @@ public class CreateUserActivity extends AppCompatActivity {
         TimerTask connectionTask = new TimerTask() {
             @Override
             public void run() {
-                if(connectedToInternet())
-                    notConnectedMessage.setVisibility(View.INVISIBLE);
-                else
-                    notConnectedMessage.setVisibility(View.VISIBLE);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(connectedToInternet())
+                            notConnectedMessage.setVisibility(View.INVISIBLE);
+                        else
+                            notConnectedMessage.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         };
 

@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -47,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     private LoginViewModel loginViewModel;
     private ReceptorOperacion receiver = new ReceptorOperacion();
     private String URI_LOGIN = "http://so-unlam.net.ar/api/api/login";
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -167,8 +169,13 @@ public class LoginActivity extends AppCompatActivity {
         newUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(getBaseContext(), CreateUserActivity.class);
-                startActivity(myIntent);
+                try{
+                    Intent myIntent = new Intent(getBaseContext(), CreateUserActivity.class);
+                    startActivity(myIntent);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
         });
     }
@@ -193,12 +200,18 @@ public class LoginActivity extends AppCompatActivity {
     private void setConnectionChecker(){
         Timer timer = new Timer();
         TimerTask connectionTask = new TimerTask() {
+
             @Override
             public void run() {
-                if(connectedToInternet())
-                    notConnectedMessage.setVisibility(View.INVISIBLE);
-                else
-                    notConnectedMessage.setVisibility(View.VISIBLE);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(connectedToInternet())
+                            notConnectedMessage.setVisibility(View.INVISIBLE);
+                        else
+                            notConnectedMessage.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         };
 
