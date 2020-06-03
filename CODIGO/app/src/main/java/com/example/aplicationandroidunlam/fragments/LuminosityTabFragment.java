@@ -58,7 +58,7 @@ public class LuminosityTabFragment extends Fragment {
     private SensorEventListener lightEventListener;
     private float maxValue;
     private int lastValueRead;
-
+    private Handler handler;
 
     public LuminosityTabFragment() {
         // Required empty public constructor
@@ -99,6 +99,8 @@ public class LuminosityTabFragment extends Fragment {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_luminosity_tab, container, false);
         Button btnEvent = root.findViewById(R.id.btn_luminosity_event);
 
+        handler = new Handler();
+
         btnEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,34 +139,40 @@ public class LuminosityTabFragment extends Fragment {
             };
 
             sensorManager.registerListener(lightEventListener, lightSensor,sensorManager.SENSOR_DELAY_FASTEST);
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    new Handler().postDelayed(this, 5000);
-                    try{
-                        if(dataLuminosity.size() != 0 && lastValueRead == Integer.parseInt(dataLuminosity.get(dataLuminosity.size() - 1).getString("value")))
-                            return;
-
-                        if(dataLuminosity.size() > 8){
-                            dataLuminosity = new ArrayList<JSONObject>();
-                        }
-
-                        dataLuminosity.add(new JSONObject().put("value", lastValueRead));
-                        LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
-                        luminosityRecycler.setAdapter(adapterLuminosity);
-
-                        EventsHandler eventsHandler = new EventsHandler(getContext());
-                        eventsHandler.RegisterEvent("Proceso background - Sensor", "Se acaba de detectar un cambio en el nivel de brillo del dispositivo");
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                }
-            }, 5000);
         }
         return root;
+    }
+
+    private void startValueHandler(){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                new Handler().postDelayed(this, 5000);
+                try{
+                    if(dataLuminosity.size() != 0 && lastValueRead == Integer.parseInt(dataLuminosity.get(dataLuminosity.size() - 1).getString("value")))
+                        return;
+
+                    if(dataLuminosity.size() > 8){
+                        dataLuminosity = new ArrayList<JSONObject>();
+                    }
+
+                    dataLuminosity.add(new JSONObject().put("value", lastValueRead));
+                    LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
+                    luminosityRecycler.setAdapter(adapterLuminosity);
+
+                    EventsHandler eventsHandler = new EventsHandler(getContext());
+                    eventsHandler.RegisterEvent("Proceso background - Sensor", "Se acaba de detectar un cambio en el nivel de brillo del dispositivo");
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+        }, 5000);
+    }
+
+    private void stopValueHandler(){
+        handler.removeCallbacksAndMessages(null);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -205,4 +213,31 @@ public class LuminosityTabFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    @Override
+    public void onDestroyView() {
+        //stopValueHandler();
+        sensorManager.unregisterListener(lightEventListener);
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startValueHandler();
+        sensorManager.registerListener(lightEventListener, lightSensor,sensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //stopValueHandler();
+        sensorManager.unregisterListener(lightEventListener);
+    }
+
 }

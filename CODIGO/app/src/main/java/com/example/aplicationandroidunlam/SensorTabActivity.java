@@ -1,11 +1,16 @@
 package com.example.aplicationandroidunlam;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import com.example.aplicationandroidunlam.fragments.GiroscopeTabFragment;
 import com.example.aplicationandroidunlam.fragments.LuminosityTabFragment;
 import com.example.aplicationandroidunlam.listAdapters.LuminosityListAdapter;
+import com.example.aplicationandroidunlam.servicesHandlers.EventsHandler;
+import com.example.aplicationandroidunlam.ui.login.LoginActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -44,8 +49,29 @@ public class SensorTabActivity extends AppCompatActivity implements LuminosityTa
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(SensorTabActivity.this);
+                builder.setCancelable(true);
+                builder.setTitle("Confirmación");
+                builder.setMessage("¿Desea cerrar la sesión?");
+                builder.setPositiveButton("Si",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                EventsHandler eventsHandler = new EventsHandler(SensorTabActivity.this);
+                                eventsHandler.RegisterEvent("Cierre de sesión", "El usuario cerro su sesión");
+                                Intent myIntent = new Intent(getBaseContext(), LoginActivity.class);
+                                startActivity(myIntent);
+                            }
+                        });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
     }

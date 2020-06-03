@@ -52,6 +52,7 @@ public class GiroscopeTabFragment extends Fragment {
     private SensorEventListener giroscopeEventListener;
     private float maxValue;
     private JSONObject lastValueRead;
+    private Handler handler;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -95,6 +96,8 @@ public class GiroscopeTabFragment extends Fragment {
                              Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_giroscope_tab, container, false);
         Button btnEvent = root.findViewById(R.id.btn_giroscope_event);
+
+        handler = new Handler();
 
         btnEvent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,38 +151,45 @@ public class GiroscopeTabFragment extends Fragment {
 
             sensorManager.registerListener(giroscopeEventListener, giroscopeSensor,sensorManager.SENSOR_DELAY_FASTEST);
 
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    new Handler().postDelayed(this, 5000);
-                    try{
-                        if(dataGiroscope.size() != 0 && SameValueAsBefore())
-                            return;
-
-                        if(dataGiroscope.size() > 6)
-                            dataGiroscope = new ArrayList<JSONObject>();
-
-                        String newValue = "X: " + lastValueRead.getString("x") +
-                                " Y: " + lastValueRead.getString("y") +
-                                " Z: " + lastValueRead.getString("z");
-
-                        dataGiroscope.add(new JSONObject().put("value", newValue));
-                        GiroscopeListAdapter adapterGiroscope = new GiroscopeListAdapter(dataGiroscope);
-                        giroscopeyRecycler.setAdapter(adapterGiroscope);
-
-                        EventsHandler eventsHandler = new EventsHandler(getContext());
-                        eventsHandler.RegisterEvent("Proceso background - Sensor", "Se acaba de detectar un cambio en el giroscopio del dispositivo");
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                }
-            }, 5000);
         }
         return root;
     }
 
+
+    private void startValueHandler(){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                new Handler().postDelayed(this, 5000);
+                try{
+                    if(dataGiroscope.size() != 0 && SameValueAsBefore())
+                        return;
+
+                    if(dataGiroscope.size() > 6)
+                        dataGiroscope = new ArrayList<JSONObject>();
+
+                    String newValue = "X: " + lastValueRead.getString("x") +
+                            " Y: " + lastValueRead.getString("y") +
+                            " Z: " + lastValueRead.getString("z");
+
+                    dataGiroscope.add(new JSONObject().put("value", newValue));
+                    GiroscopeListAdapter adapterGiroscope = new GiroscopeListAdapter(dataGiroscope);
+                    giroscopeyRecycler.setAdapter(adapterGiroscope);
+
+                    EventsHandler eventsHandler = new EventsHandler(getContext());
+                    eventsHandler.RegisterEvent("Proceso background - Sensor", "Se acaba de detectar un cambio en el giroscopio del dispositivo");
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+        }, 5000);
+    }
+
+    private void stopValueHandler(){
+        handler.removeCallbacksAndMessages(null);
+    }
 
     public boolean SameValueAsBefore(){
 
@@ -225,6 +235,32 @@ public class GiroscopeTabFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        //stopValueHandler();
+        sensorManager.unregisterListener(giroscopeEventListener);
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startValueHandler();
+        sensorManager.registerListener(giroscopeEventListener, giroscopeSensor,sensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //stopValueHandler();
+        sensorManager.unregisterListener(giroscopeEventListener);
     }
 
     /**
