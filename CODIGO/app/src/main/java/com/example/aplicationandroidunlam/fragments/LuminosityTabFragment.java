@@ -1,6 +1,7 @@
 package com.example.aplicationandroidunlam.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,10 +24,13 @@ import android.widget.Toast;
 import com.example.aplicationandroidunlam.R;
 import com.example.aplicationandroidunlam.listAdapters.LuminosityListAdapter;
 import com.example.aplicationandroidunlam.servicesHandlers.EventsHandler;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import static android.content.Context.SENSOR_SERVICE;
@@ -110,8 +114,6 @@ public class LuminosityTabFragment extends Fragment {
             }
         });
 
-
-
         sensorManager = (SensorManager) getActivity().getSystemService(SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 
@@ -122,7 +124,7 @@ public class LuminosityTabFragment extends Fragment {
             luminosityRecycler = (RecyclerView) root.findViewById(R.id.recicler_luminosity);
             luminosityRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
-            dataLuminosity = new ArrayList<JSONObject>();
+            loadData();
             maxValue = lightSensor.getMaximumRange();
 
             lightEventListener = new SensorEventListener() {
@@ -143,13 +145,52 @@ public class LuminosityTabFragment extends Fragment {
         return root;
     }
 
+    public void saveDataToPreference(){
+        SharedPreferences preferences = getContext().getSharedPreferences("luminosity", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(dataLuminosity);
+        editor.putString("luminosityData", json);
+        editor.apply();
+    }
+
+    private void loadData() {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("luminosity", Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("luminosityData", null);
+        Type type = new TypeToken<ArrayList<JSONObject>>() {}.getType();
+        dataLuminosity = gson.fromJson(json, type);
+        if (dataLuminosity == null) {
+            dataLuminosity = new ArrayList<JSONObject>();
+        }
+        else
+        {
+            int index = 0;
+            //Work arround a parceo de GSON
+            for (JSONObject value: dataLuminosity) {
+                try{
+                    float floatValue = Float.parseFloat(value.getString("value"));
+                    dataLuminosity.set(index, new JSONObject().put("value", (int)floatValue));
+                    index++;
+                }catch (Exception e){
+
+                }
+
+            }
+        }
+
+        LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
+        luminosityRecycler.setAdapter(adapterLuminosity);
+    }
+
+
     private void startValueHandler(){
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 new Handler().postDelayed(this, 5000);
                 try{
-                    if(dataLuminosity.size() != 0 && lastValueRead == Integer.parseInt(dataLuminosity.get(dataLuminosity.size() - 1).getString("value")))
+                    if(dataLuminosity.size() != 0 && lastValueRead ==  Integer.parseInt(dataLuminosity.get(dataLuminosity.size() - 1).getString("value")))
                         return;
 
                     if(dataLuminosity.size() > 8){
@@ -160,6 +201,7 @@ public class LuminosityTabFragment extends Fragment {
                     LuminosityListAdapter adapterLuminosity = new LuminosityListAdapter(dataLuminosity);
                     luminosityRecycler.setAdapter(adapterLuminosity);
 
+                    saveDataToPreference();
                     EventsHandler eventsHandler = new EventsHandler(getContext());
                     eventsHandler.RegisterEvent("Proceso background - Sensor", "Se acaba de detectar un cambio en el nivel de brillo del dispositivo");
                 }

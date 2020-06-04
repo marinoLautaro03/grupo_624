@@ -1,6 +1,7 @@
 package com.example.aplicationandroidunlam.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -23,10 +24,14 @@ import com.example.aplicationandroidunlam.R;
 import com.example.aplicationandroidunlam.listAdapters.GiroscopeListAdapter;
 import com.example.aplicationandroidunlam.listAdapters.LuminosityListAdapter;
 import com.example.aplicationandroidunlam.servicesHandlers.EventsHandler;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import static android.content.Context.SENSOR_SERVICE;
@@ -127,7 +132,7 @@ public class GiroscopeTabFragment extends Fragment {
             giroscopeyRecycler = (RecyclerView) root.findViewById(R.id.recicler_Giroscope);
             giroscopeyRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
-            dataGiroscope = new ArrayList<JSONObject>();
+            loadData();
             maxValue = giroscopeSensor.getMaximumRange();
 
             giroscopeEventListener = new SensorEventListener() {
@@ -173,6 +178,8 @@ public class GiroscopeTabFragment extends Fragment {
                             " Z: " + lastValueRead.getString("z");
 
                     dataGiroscope.add(new JSONObject().put("value", newValue));
+                    saveDataToPreference();
+
                     GiroscopeListAdapter adapterGiroscope = new GiroscopeListAdapter(dataGiroscope);
                     giroscopeyRecycler.setAdapter(adapterGiroscope);
 
@@ -186,6 +193,31 @@ public class GiroscopeTabFragment extends Fragment {
             }
         }, 5000);
     }
+
+
+    public void saveDataToPreference(){
+        SharedPreferences preferences = getContext().getSharedPreferences("giroscope", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(dataGiroscope);
+        editor.putString("giroscopeData", json);
+        editor.apply();
+    }
+
+    private void loadData() {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("giroscope", Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("giroscopeData", null);
+        Type type = new TypeToken<ArrayList<JSONObject>>() {}.getType();
+        dataGiroscope = gson.fromJson(json, type);
+        if (dataGiroscope == null) {
+            dataGiroscope = new ArrayList<JSONObject>();
+        }
+
+        GiroscopeListAdapter adapterGiroscope = new GiroscopeListAdapter(dataGiroscope);
+        giroscopeyRecycler.setAdapter(adapterGiroscope);
+    }
+
 
     private void stopValueHandler(){
         handler.removeCallbacksAndMessages(null);
